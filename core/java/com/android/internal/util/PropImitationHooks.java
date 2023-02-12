@@ -49,6 +49,7 @@ public class PropImitationHooks {
     private static final String PACKAGE_FINSKY = "com.android.vending";
     private static final String PACKAGE_GMS = "com.google.android.gms";
     private static final String PACKAGE_VELVET = "com.google.android.googlequicksearchbox";
+    private static final String PACKAGE_SMS_ORGANIZER = "com.microsoft.android.smsorganizer";
 
     private static final String PROCESS_GMS_PERSISTENT = PACKAGE_GMS + ".persistent";
     private static final String PROCESS_GMS_UNSTABLE = PACKAGE_GMS + ".unstable";
@@ -59,7 +60,7 @@ public class PropImitationHooks {
         "DEVICE", "redfin",
         "PRODUCT", "redfin",
         "MODEL", "Pixel 5",
-        "FINGERPRINT", "google/redfin/redfin:13/TQ1A.230105.001/9292298:user/release-keys"
+        "FINGERPRINT", "google/redfin/redfin:13/TQ1A.230205.002/9471150:user/release-keys"
     );
 
     private static final Map<String, Object> sPixelXLProps = Map.of(
@@ -73,6 +74,7 @@ public class PropImitationHooks {
 
     private static volatile boolean sIsGms = false;
     private static volatile boolean sIsFinsky = false;
+    private static volatile boolean sIsSMSOrg = false;
 
     public static void setProps(Context context) {
         final String packageName = context.getPackageName();
@@ -85,6 +87,7 @@ public class PropImitationHooks {
 
         sIsGms = packageName.equals(PACKAGE_GMS) && processName.equals(PROCESS_GMS_UNSTABLE);
         sIsFinsky = packageName.equals(PACKAGE_FINSKY);
+        sIsSMSOrg = packageName.equals(PACKAGE_SMS_ORGANIZER);
 
         /* Set Certified Properties for GMSCore */
         if (sCertifiedProps.length == 4 && sIsGms) {
@@ -101,6 +104,9 @@ public class PropImitationHooks {
                 || (packageName.equals(PACKAGE_GMS)
                     && processName.equals(PROCESS_GMS_PERSISTENT)))) {
             dlog("Spoofing Pixel 5 for: " + packageName + " process: " + processName);
+            sPixelProps.forEach(PropImitationHooks::setPropValue);
+        } else if (sIsSMSOrg) {
+            dlog("Spoofing Pixel 5 for: " + packageName);
             sPixelProps.forEach(PropImitationHooks::setPropValue);
         }
     }
