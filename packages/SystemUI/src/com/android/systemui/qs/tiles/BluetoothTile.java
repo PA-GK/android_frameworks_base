@@ -74,7 +74,7 @@ public class BluetoothTile extends SecureQSTile<BooleanState> {
             ActivityStarter activityStarter,
             QSLogger qsLogger,
             BluetoothController bluetoothController,
-            KeyguardStateController keyguardStateController
+            KeyguardStateController keyguardStateController,
             BluetoothDialogFactory bluetoothDialogFactory
     ) {
         super(host, backgroundLooper, mainHandler, falsingManager, metricsLogger,
