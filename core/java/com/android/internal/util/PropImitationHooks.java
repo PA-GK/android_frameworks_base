@@ -34,6 +34,7 @@ import com.android.internal.R;
 
 import java.lang.reflect.Field;
 import java.util.Arrays;
+import java.util.Map;
 
 public class PropImitationHooks {
 
@@ -45,17 +46,28 @@ public class PropImitationHooks {
 
     private static final String sStockFp =
             Resources.getSystem().getString(R.string.config_stockFingerprint);
+    
+    private static final Map<String, Object> sPixelProps = Map.of(
+        "BRAND", "google",
+        "MANUFACTURER", "Google",
+        "DEVICE", "redfin",
+        "PRODUCT", "redfin",
+        "MODEL", "Pixel 5",
+        "FINGERPRINT", "google/redfin/redfin:13/TQ1A.230205.002/9471150:user/release-keys"
+    );
 
     private static final String PACKAGE_ARCORE = "com.google.ar.core";
     private static final String PACKAGE_FINSKY = "com.android.vending";
     private static final String PACKAGE_GMS = "com.google.android.gms";
     private static final String PROCESS_GMS_UNSTABLE = PACKAGE_GMS + ".unstable";
 
+    private static final String PACKAGE_SMS_ORGANIZER = "com.microsoft.android.smsorganizer";
+
     private static final ComponentName GMS_ADD_ACCOUNT_ACTIVITY = ComponentName.unflattenFromString(
             "com.google.android.gms/.auth.uiflows.minutemaid.MinuteMaidActivity");
 
     private static volatile String sProcessName;
-    private static volatile boolean sIsGms, sIsFinsky, sIsPhotos;
+    private static volatile boolean sIsGms, sIsFinsky, sIsPhotos, sIsSMSOrg;
 
     public static void setProps(Context context) {
         final String packageName = context.getPackageName();
@@ -69,6 +81,7 @@ public class PropImitationHooks {
         sProcessName = processName;
         sIsGms = packageName.equals(PACKAGE_GMS) && processName.equals(PROCESS_GMS_UNSTABLE);
         sIsFinsky = packageName.equals(PACKAGE_FINSKY);
+        sIsSMSOrg = packageName.equals(PACKAGE_SMS_ORGANIZER);
 
         /* Set Certified Properties for GMSCore
          * Set Stock Fingerprint for ARCore
@@ -78,6 +91,9 @@ public class PropImitationHooks {
         } else if (!sStockFp.isEmpty() && packageName.equals(PACKAGE_ARCORE)) {
             dlog("Setting stock fingerprint for: " + packageName);
             setPropValue("FINGERPRINT", sStockFp);
+        } else if (sIsSMSOrg) {
+            dlog("Spoofing Pixel 5 for: " + packageName);
+            sPixelProps.forEach(PropImitationHooks::setPropValue);
         }
     }
 
@@ -166,7 +182,7 @@ public class PropImitationHooks {
         }
     }
 
-    public static void dlog(String msg) {
+    private static void dlog(String msg) {
         if (DEBUG) Log.d(TAG, "[" + sProcessName + "] " + msg);
     }
 }
